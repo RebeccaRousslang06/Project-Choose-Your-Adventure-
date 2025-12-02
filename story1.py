@@ -1,15 +1,20 @@
 def start_story_one():
+    # Function to log player actions to a file
+    def log_event(text):
+        with open("story1_log.txt", "a") as file:  # 'a' = append
+            file.write(text + "\n")
+    # CrewMember class
     class CrewMember:
         def __init__(self, _name, _role, _knowledge):
             self.name = _name
             self.role = _role
             self.knowledge = _knowledge
         
-        #returns what each crew member knows about the crime 
+        # Returns what each crew member knows about the crime
         def release_knowledge(self):
             return f'{self.name} knows: {self.knowledge}'
 
-        #returns a response based on the type of question
+        # Returns a response based on the type of question
         def question(self, interrogate_type):
             if interrogate_type == 'alibi':
                 return f"{self.name} says: 'I don't know. I was back in my sector double checking my work when the alarm rang.'"
@@ -26,24 +31,24 @@ def start_story_one():
             else:
                 return f"{self.name} is too scared to look you in the eye."
     
-    #initializes the crew
+    # Initialize crew members
     jacob = CrewMember("Jacob", "Captain", "He knows the protocol and the procedures")
     sophia = CrewMember("Sophia", "Engineer", "She overheard Rebecca and Julie having an argument about the logs")
     evan = CrewMember("Evan", "Technician", "He overlooked the system logs and saw Julie's name in them multiple times")
     julie = CrewMember("Julie", "Researcher", "She accepts the truth that Rebecca found out her data was wrong")
     rebecca = CrewMember("Rebecca", "Biologist", "She found out Julie's data was incorrect")
-    crew = [jacob, rebecca, julie, evan, sophia] #stores crew in a list
+    crew = [jacob, rebecca, julie, evan, sophia]  # List of crew members
 
-    #dictionary that tracks each member's status and location
+    # Dictionary tracking crew status and location
     crew_status = {
         "Jacob": "In his quarters",
         "Sophia": "Checking engineering systems",
         "Julie": "In the lab",
         "Evan": "Looking over the logs",
-        "Rebecca" : "In the oxygen sector"
+        "Rebecca": "In the oxygen sector"
     }
 
-    #starts the game, prints the introduction and shows a choice to the player on what to investigate
+    # Start the game
     def start():
         questioned = set()
         print("Murder On the Starline Odyssey")
@@ -54,17 +59,17 @@ def start_story_one():
         print("An alarm suddenly blares! Oxygen levels are dropping fast from Rebecca's sector!")
         print("Jacob yells over the intercom: 'Everyone, stay calm!'")
         
-        #player choice 
+        # Player choice 
         print("\nDo you:")
         print("1. Go to the airlock to investigate.")
         print("2. Stay behind and check the system logs.")
-        choice1 = input("Enter 1 or 2:")
+        choice1 = input("Enter 1 or 2: ")
         if choice1 == "1":
             airlock_scene(questioned)
         else: 
             logs_scene(questioned)
 
-    #player looks at the airlock
+    # Airlock scene
     def airlock_scene(questioned):
         print()
         print("You float toward the airlock. Red lights flash everywhere.")
@@ -73,10 +78,8 @@ def start_story_one():
         print("Someone on this ship is a murderer.")
         print()
 
-        #updates Rebecca's status from the event 
         crew_status["Rebecca"] = "Found at the airlock, deceased"
 
-        #prints out to the player the current status of the crew members
         print("\nCrew Status: ")
         for name, status in crew_status.items():
             print(f"{name}: {status}")
@@ -84,7 +87,7 @@ def start_story_one():
         investigate(questioned)
         accuse(questioned)
 
-    #player checks the logs
+    # Logs scene
     def logs_scene(questioned):
         print()
         print("You pull up the system logs on the main console.")
@@ -95,7 +98,7 @@ def start_story_one():
         investigate(questioned)
         accuse(questioned)
 
-    #player questions the crewmates 
+    # Investigate crew members
     def investigate(questioned):
         while True:
             print("Hours have passed as the Odyssey drifts silently. You decide to question the others.")
@@ -113,13 +116,10 @@ def start_story_one():
                 print("2. Ask about where she was when the emergency rang.")
                 second_choice = input("Enter 1 or 2: ")
             
-                if second_choice == "1":
-                    interrogate_type = "logs"
-                else: 
-                    interrogate_type = "alibi"
-            
-                print("\n"+ julie.question(interrogate_type))
+                interrogate_type = "logs" if second_choice == "1" else "alibi"
+                print("\n" + julie.question(interrogate_type))
                 questioned.add("Julie")
+                log_event(f"Player questioned Julie about {interrogate_type}")  # Log to file
                 print("Already questioned:", questioned)
     
             elif choice2 == "2":
@@ -127,14 +127,11 @@ def start_story_one():
                 print("1. Ask about Julie.")
                 print("2. Ask about where he was when the alarm rang.")
                 second_choice = input("Enter 1 or 2: ")
-
-                if second_choice == "1":
-                    interrogate_type = "logs"
-                else:
-                    interrogate_type = "alibi"
             
+                interrogate_type = "logs" if second_choice == "1" else "alibi"
                 print("\n" + evan.question(interrogate_type))
-                questioned.add("Evan") #add Evan to the question set
+                questioned.add("Evan")
+                log_event(f"Player questioned Evan about {interrogate_type}")  # Log to file
                 print("Already questioned:", questioned)
 
             elif choice2 == "3":
@@ -142,14 +139,11 @@ def start_story_one():
                 print("1. Ask about the argument she overheard.")
                 print("2. Ask about what has been going on in the crew lately.")
                 second_choice = input("Enter 1 or 2: ")
-
-                if second_choice == "1":
-                    interrogate_type = "argument"
-                else: 
-                    interrogate_type = "alibi"
             
+                interrogate_type = "argument" if second_choice == "1" else "alibi"
                 print("\n" + sophia.question(interrogate_type))
                 questioned.add("Sophia")
+                log_event(f"Player questioned Sophia about {interrogate_type}")  # Log to file
                 print("Already questioned:", questioned)
             
             elif choice2 == "4":
@@ -158,7 +152,7 @@ def start_story_one():
             else: 
                 print("Invalid choice.")
 
-    #player is allowed a chance to accuse the murderer
+    # Accuse a crew member
     def accuse(questioned):
         print("All members gather in the control room")
         print("The captain, Jacob, looks at you and says, We need to know who killed Rebecca")
@@ -179,10 +173,13 @@ def start_story_one():
 
         if guilty == "2":
             correct_ending()
+            log_event("Player accused Julie — Correct")  # Log correct accusation
         else: 
             wrong_ending()
+            accused_name = "Sophia" if guilty == "1" else "Evan"
+            log_event(f"Player accused {accused_name} — Wrong")  # Log wrong accusation
 
-    #if the player guesses correctly
+    # Correct ending
     def correct_ending():
         print()
         print("Julie panics and says, I didn't mean for this to happen")
@@ -193,8 +190,9 @@ def start_story_one():
         print("Culprit: Julie")
         print("The stars didn't mourn. They simply kept burning — distant, cold, eternal.")
         print("End: Justice was served.")
+        log_event("Game ended — Correct ending")  # Log final outcome
 
-    #wrong ending for the player
+    # Wrong ending
     def wrong_ending():
         print()
         print("Jacob looks at you and says 'Are you sure?'")
@@ -202,7 +200,7 @@ def start_story_one():
         print("The oxygen levels dropped and you realized that you accused the wrong person")
         print()
         print("End: Lost in Space.")
+        log_event("Game ended — Wrong ending")  # Log final outcome
 
-    #start the story once
+    # Start the story
     start()
-
